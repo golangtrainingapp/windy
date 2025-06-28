@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/golangtrainingapp/windy"
+	"github.com/golangtrainingapp/windyv1"
 )
 
 func main() {
