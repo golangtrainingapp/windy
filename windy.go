@@ -3,6 +3,7 @@ package windy
 import (
 	"encoding/json"
 	"errors"
+	"github.com/golangtrainingapp/windyv1/model"
 	"io"
 	"net/http"
 	"strings"
@@ -10,18 +11,23 @@ import (
 
 const WINDYAPI_ENDPOINT = "https://api.windy.com/api/point-forecast/v2"
 
-func GetWeather(latitude, longitude float64, apiKey string) (string, error) {
+func GetWeather(latitude, longitude float64, apiKey string) (model.Windy_Realtime_Report, error) {
 	req, err := BuildRequest(latitude, longitude, apiKey, "POST")
 	if err != nil {
-		return "", err
+		return model.Windy_Realtime_Report{}, err
 	}
 	req.Header.Set("content-type", "application/json")
 	resp, err := http.DefaultClient.Do(req)
-	windyAPIResponse, err := ParseWindyResponse(resp, err)
+	//windyAPIResponse, err := ParseWindyResponse(resp, err)
 	if err != nil {
-		return "", err
+		return model.Windy_Realtime_Report{}, err
 	}
-	return windyAPIResponse, nil
+	respBytes, _ := io.ReadAll(resp.Body)
+	windyObj, err := UnMarshalResponseToWindyObject(respBytes)
+	if err != nil {
+		return model.Windy_Realtime_Report{}, err
+	}
+	return windyObj, nil
 }
 
 func buildAPIRequest(latitude, longitude float64, apiKey string) string {
@@ -59,5 +65,15 @@ func ParseWindyResponse(resp *http.Response, err error) (string, error) {
 		return "", err
 	}
 	return string(windyJsonResp), nil
+
+}
+
+func UnMarshalResponseToWindyObject(respBytes []byte) (model.Windy_Realtime_Report, error) {
+	var resp model.Windy_Realtime_Report
+	err := json.Unmarshal(respBytes, &resp)
+	if err != nil {
+		return model.Windy_Realtime_Report{}, err
+	}
+	return resp, nil
 
 }
