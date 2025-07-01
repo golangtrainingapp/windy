@@ -3,7 +3,7 @@ package windy_test
 import (
 	"bytes"
 	"fmt"
-	"github.com/golangtrainingapp/windy"
+	"github.com/golangtrainingapp/windyv1"
 	"io"
 	"net/http"
 	"testing"
