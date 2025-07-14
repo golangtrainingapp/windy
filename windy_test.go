@@ -12,6 +12,7 @@ import (
 const WINDYAPI_ENDPOINT = "https://api.windy.com/api/point-forecast/v2"
 
 func TestBuildRequestReturnsRequestWithLatLongAndKey(t *testing.T) {
+	t.Parallel()
 	request, err := windy.BuildRequest(53.1900, -112.2500, "mxJW8fEadecqILVj7RWBdhUfJ38Ou0Bv", "POST")
 	if err != nil {
 		fmt.Println(err)

@@ -1,5 +1,6 @@
 package model
 
+// The Windy_Realtime_Report structure maps to the WindyAPI.com response
 type Windy_Realtime_Report struct {
 	Ts    []int64 `json:"ts"`
 	Units struct {
