@@ -6,24 +6,37 @@ package windy
 import (
 	"encoding/json"
 	"errors"
+	Config "github.com/golangtrainingapp/windyv1/Config"
 	"github.com/golangtrainingapp/windyv1/model"
 	"io"
+	"math"
 	"net/http"
 	"strings"
 )
-
-// WINDYAPI_ENDPOINT: windyapi.com endpoint
-const WINDYAPI_ENDPOINT = "https://api.windy.com/api/point-forecast/v2"
 
 // The GetWeather function is responsible for retrieving the real-time weather response for a given
 // latitude and longitude from WindyAPI.com. The apiKey is also necessary as the validation is
 // performed by WindyAPI.com. An POST request is sent to WindyAPI.com to retrieve the real-time
 // weather results
 func GetWeather(latitude, longitude float64, apiKey string) (model.Windy_Realtime_Report, error) {
-	req, err := BuildRequest(latitude, longitude, apiKey, "POST")
+	config, err := Config.LoadConfig("windy/windy.yaml")
 	if err != nil {
-		return model.Windy_Realtime_Report{}, err
+		return model.Windy_Realtime_Report{}, errors.New("unable to process the request, please contact the application support team")
 	}
+	endPoint := config.ServerInfo.Endpoint
+
+	if !math.IsNaN(latitude) && !math.IsInf(latitude, 0) && !isValidLatitude(latitude) {
+		return model.Windy_Realtime_Report{}, errors.New("latitude must be a numeric value (between -90 and 90)")
+	}
+	if !math.IsNaN(longitude) && !math.IsInf(longitude, 0) && !isValidLongitude(longitude) {
+		return model.Windy_Realtime_Report{}, errors.New("longitude must be a numeric value (between -180 and 180)")
+	}
+	if strings.Trim(apiKey, "") == "" {
+		return model.Windy_Realtime_Report{}, errors.New("api key is required")
+	}
+
+	req, _ := BuildRequest(latitude, longitude, apiKey, "POST", endPoint)
+
 	req.Header.Set("content-type", "application/json")
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -54,9 +67,9 @@ func buildAPIRequest(latitude, longitude float64, apiKey string) string {
 }
 
 // The BuildRequest function internally invokes buildAPIRequest method for building the POST request
-func BuildRequest(latitude, longitude float64, apiKey string, methodType string) (*http.Request, error) {
+func BuildRequest(latitude, longitude float64, apiKey string, methodType string, endPoint string) (*http.Request, error) {
 	buildJsonReq := buildAPIRequest(latitude, longitude, apiKey)
-	httpReq, err := http.NewRequest(methodType, WINDYAPI_ENDPOINT, strings.NewReader(buildJsonReq))
+	httpReq, err := http.NewRequest(methodType, endPoint, strings.NewReader(buildJsonReq))
 	if err != nil {
 		return nil, err
 	}
@@ -93,4 +106,14 @@ func UnMarshalResponseToWindyObject(respBytes []byte) (model.Windy_Realtime_Repo
 		return model.Windy_Realtime_Report{}, err
 	}
 	return resp, nil
+}
+
+// Performs the latitude validation
+func isValidLatitude(lat float64) bool {
+	return lat >= -90.0 && lat <= 90.0
+}
+
+// Performs the longitude validation
+func isValidLongitude(lon float64) bool {
+	return lon >= -180.0 && lon <= 180.0
 }
