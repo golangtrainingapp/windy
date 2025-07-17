@@ -18,7 +18,7 @@ const WINDYAPI_ENDPOINT = "https://api.windy.com/api/point-forecast/v2"
 
 func TestInvalidConfigFile(t *testing.T) {
 	t.Parallel()
-	//Pass the invalid key pair in the config file to simulate the error
+	//Pass the invalid key pair in the Config file to simulate the error
 	_, err := Config.LoadConfig("test/windy.yaml")
 	if err != nil {
 		assert.Error(t, errors.New("Unable to load the configuration file. Please contact the application support team."), err)
@@ -28,7 +28,7 @@ func TestInvalidConfigFile(t *testing.T) {
 func TestValidConfigFile(t *testing.T) {
 	t.Parallel()
 
-	//Pass the invalid key pair in the config file to simulate the error
+	//Pass the invalid key pair in the Config file to simulate the error
 	config, err := Config.LoadConfig("windy/windy.yaml")
 	if err != nil {
 		assert.Error(t, errors.New("Unable to load the configuration file. Please contact the application support team."), err)
@@ -98,7 +98,7 @@ func TestValidateInputParametersFromRequest(t *testing.T) {
 
 func TestSimulateInvalidWindyEndPoint(t *testing.T) {
 	t.Parallel()
-	//Make a change in config with invalid endpoint for example from v2 to v1
+	//Make a change in Config with invalid endpoint for example from v2 to v1
 	endPoint := "https://api.windy.com/api/point-forecast/v1"
 	req, _ := windy.BuildRequest(53.1900, -112.2500, "mxJW8fEadecqILVj7RWBdhUfJ38Ou0Bv", "POST", endPoint)
 	req.Header.Set("content-type", "application/json")
