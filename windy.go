@@ -6,8 +6,8 @@ package windy
 import (
 	"encoding/json"
 	"errors"
-	Config "github.com/golangtrainingapp/windyv1/Config"
-	"github.com/golangtrainingapp/windyv1/model"
+	Config "github.com/golangtrainingapp/windyv1/windy/Config"
+	"github.com/golangtrainingapp/windyv1/windy/model"
 	"io"
 	"math"
 	"net/http"

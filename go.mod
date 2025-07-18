@@ -1,4 +1,4 @@
-module github.com/golangtrainingapp/windyv1
+module github.com/golangtrainingapp/windyv1/windy
 
 go 1.24.1
 

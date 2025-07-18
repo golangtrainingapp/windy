@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/golangtrainingapp/windyv1"
+	"github.com/golangtrainingapp/windyv1/windy"
 	"os"
 	"path/filepath"
 	"strconv"
