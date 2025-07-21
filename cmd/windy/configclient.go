@@ -1,4 +1,4 @@
-package Config
+package main
 
 import (
 	"fmt"
@@ -9,8 +9,7 @@ import (
 
 type Config struct {
 	ServerInfo struct {
-		Endpoint string `json:"endpoint"`
-		ApiKey   string `json:"apikey"`
+		Apikey string `json:"apikey"`
 	}
 }
 
@@ -29,7 +28,6 @@ func LoadConfig(yamlFile string) (*Config, error) {
 		fmt.Printf("YAML file is empty\n")
 		return nil, err
 	}
-
 	var cfg Config
 	err = yaml.Unmarshal(yamlWindy, &cfg)
 	if err != nil {

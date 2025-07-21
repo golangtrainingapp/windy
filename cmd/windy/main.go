@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/golangtrainingapp/windyv1/windy"
+	_ "github.com/golangtrainingapp/windyv1/windy/Config"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -11,7 +12,13 @@ import (
 )
 
 func main() {
-	resp, err := windy.GetWeather(53.1900, -112.2500, "mxJW8fEadecqILVj7RWBdhUfJ38Ou0Bv")
+	config, err := LoadConfig("windy/windyclient.yaml")
+	if err != nil {
+		fmt.Printf("Error loading config: %v\n", err)
+	}
+
+	apiKey := config.ServerInfo.Apikey
+	resp, err := windy.GetWeather(53.1900, -112.2500, apiKey)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

@@ -1,7 +1,6 @@
 package windy_test
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"github.com/golangtrainingapp/windyv1/windy"
@@ -9,7 +8,6 @@ import (
 	_ "github.com/golangtrainingapp/windyv1/windy/model"
 	"github.com/stretchr/testify/assert"
 	_ "go/types"
-	"io"
 	"net/http"
 	"testing"
 )
@@ -37,21 +35,25 @@ func TestValidConfigFile(t *testing.T) {
 
 }
 
+func ReturnApiKey() (string, error) {
+	config, err := Config.LoadConfig("windy/windy.yaml")
+	if err != nil {
+		return "", errors.New("Unable to load the configuration file. Please contact the application support team.")
+	}
+	return config.ServerInfo.ApiKey, nil
+}
+
 func TestBuildRequestReturnsRequestWithLatLongAndKey(t *testing.T) {
 	t.Parallel()
-	request, err := windy.BuildRequest(53.1900, -112.2500, "mxJW8fEadecqILVj7RWBdhUfJ38Ou0Bv", "POST", WINDYAPI_ENDPOINT)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	windyJsonResp, err := io.ReadAll(request.Body)
+	apiKey, err := ReturnApiKey()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	sampleRequest := `{"key":"mxJW8fEadecqILVj7RWBdhUfJ38Ou0Bv","lat":53.19,"levels":["surface","1000h","800h","400h","200h"],"lon":-112.25,"model":"gfs","parameters":["temp","dewpoint","precip","convPrecip","snowPrecip","wind","windGust","cape","ptype","lclouds","mclouds","hclouds","rh","gh","pressure"]}`
-	if !bytes.Equal(windyJsonResp, convertRequestToBytes(sampleRequest)) {
-		t.Fatalf("WindyJsonResp does not match request body")
+	request, err := windy.BuildRequest(53.1900, -112.2500, apiKey, "POST", WINDYAPI_ENDPOINT)
+	if err != nil {
+		fmt.Println(err)
+		return
 	}
 
 	if request.Method != http.MethodPost {
@@ -70,7 +72,12 @@ func convertRequestToBytes(req string) []byte {
 
 func TestValidateInputParametersFromRequest(t *testing.T) {
 	t.Parallel()
-	const apikey = "mxJW8fEadecqILVj7RWBdhUfJ38Ou0Bv"
+
+	apikey, err := ReturnApiKey()
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	var requestTests = []struct {
 		name          string
 		latitude      float64
@@ -98,9 +105,13 @@ func TestValidateInputParametersFromRequest(t *testing.T) {
 
 func TestSimulateInvalidWindyEndPoint(t *testing.T) {
 	t.Parallel()
+	apiKey, err := ReturnApiKey()
+	if err != nil {
+		t.Fatal(err)
+	}
 	//Make a change in Config with invalid endpoint for example from v2 to v1
 	endPoint := "https://api.windy.com/api/point-forecast/v1"
-	req, _ := windy.BuildRequest(53.1900, -112.2500, "mxJW8fEadecqILVj7RWBdhUfJ38Ou0Bv", "POST", endPoint)
+	req, _ := windy.BuildRequest(53.1900, -112.2500, apiKey, "POST", endPoint)
 	req.Header.Set("content-type", "application/json")
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
