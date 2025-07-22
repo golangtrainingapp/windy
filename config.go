@@ -21,12 +21,10 @@ func LoadConfig(yamlFile string) (*Config, error) {
 	}
 	yamlWindy, err := os.ReadFile(configFilePath)
 	if err != nil {
-		fmt.Printf("Error reading YAML file: %v\n", err)
 		return nil, err
 	}
 
 	if len(yamlWindy) == 0 {
-		fmt.Printf("YAML file is empty\n")
 		return nil, err
 	}
 

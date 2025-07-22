@@ -3,22 +3,35 @@ package windy_test
 import (
 	"errors"
 	"fmt"
-	"github.com/golangtrainingapp/windyv1/windy"
+	"github.com/golangtrainingapp/windy"
 	"github.com/stretchr/testify/assert"
 	_ "go/types"
 	"net/http"
+	"os"
 	"testing"
 )
 
 const WINDYAPI_ENDPOINT = "https://api.windy.com/api/point-forecast/v2"
 
-func TestInvalidConfigFile(t *testing.T) {
+func TestLoadConfig_ReturnsErrorWhenConfigFileIsMissing(t *testing.T) {
 	t.Parallel()
 	//Pass the invalid key pair in the Config file to simulate the error
 	_, err := windy.LoadConfig("test/windy.yaml")
+	assert.NotNil(t, err)
+
+}
+
+func TestLoadConfig_ReturnsErrorWhenContentIsInvalid(t *testing.T) {
+	t.Parallel()
+	_, err := os.Stat("testdata/invalid.yaml")
 	if err != nil {
-		assert.Error(t, errors.New("Unable to load the configuration file. Please contact the application support team."), err)
+		t.Fatal(err)
 	}
+	_, err = windy.LoadConfig("testdata/invalid.yaml")
+	if err == nil {
+		t.Error("Wanted error but got nil")
+	}
+
 }
 
 func TestValidConfigFile(t *testing.T) {
