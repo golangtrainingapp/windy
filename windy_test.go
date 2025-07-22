@@ -4,8 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/golangtrainingapp/windyv1/windy"
-	"github.com/golangtrainingapp/windyv1/windy/Config"
-	_ "github.com/golangtrainingapp/windyv1/windy/model"
 	"github.com/stretchr/testify/assert"
 	_ "go/types"
 	"net/http"
@@ -17,7 +15,7 @@ const WINDYAPI_ENDPOINT = "https://api.windy.com/api/point-forecast/v2"
 func TestInvalidConfigFile(t *testing.T) {
 	t.Parallel()
 	//Pass the invalid key pair in the Config file to simulate the error
-	_, err := Config.LoadConfig("test/windy.yaml")
+	_, err := windy.LoadConfig("test/windy.yaml")
 	if err != nil {
 		assert.Error(t, errors.New("Unable to load the configuration file. Please contact the application support team."), err)
 	}
@@ -27,7 +25,7 @@ func TestValidConfigFile(t *testing.T) {
 	t.Parallel()
 
 	//Pass the invalid key pair in the Config file to simulate the error
-	config, err := Config.LoadConfig("windy/windy.yaml")
+	config, err := windy.LoadConfig("windy/windy.yaml")
 	if err != nil {
 		assert.Error(t, errors.New("Unable to load the configuration file. Please contact the application support team."), err)
 	}
@@ -36,7 +34,7 @@ func TestValidConfigFile(t *testing.T) {
 }
 
 func ReturnApiKey() (string, error) {
-	config, err := Config.LoadConfig("windy/windy.yaml")
+	config, err := windy.LoadConfig("windy/windy.yaml")
 	if err != nil {
 		return "", errors.New("Unable to load the configuration file. Please contact the application support team.")
 	}

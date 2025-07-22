@@ -3,8 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/adrg/xdg"
 	"github.com/golangtrainingapp/windyv1/windy"
-	_ "github.com/golangtrainingapp/windyv1/windy/Config"
+	"gopkg.in/yaml.v2"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -46,4 +47,34 @@ func WriteToFile(path string, data []byte) error {
 	_, _ = f.Write(data)
 	return nil
 
+}
+
+type Config struct {
+	ServerInfo struct {
+		Apikey string `json:"apikey"`
+	}
+}
+
+func LoadConfig(yamlFile string) (*Config, error) {
+	configFilePath, err := xdg.ConfigFile(yamlFile)
+	if err != nil {
+		return nil, err
+	}
+	yamlWindy, err := os.ReadFile(configFilePath)
+	if err != nil {
+		fmt.Printf("Error reading YAML file: %v\n", err)
+		return nil, err
+	}
+
+	if len(yamlWindy) == 0 {
+		fmt.Printf("YAML file is empty\n")
+		return nil, err
+	}
+	var cfg Config
+	err = yaml.Unmarshal(yamlWindy, &cfg)
+	if err != nil {
+		fmt.Printf("Error unmarshalling YAML: %v\n", err)
+		return nil, err
+	}
+	return &cfg, nil
 }
