@@ -11,5 +11,5 @@ resp, err := windy.GetWeather(53.1900, -112.2500, "valid api key")
 Here's how to install it:
 
 ```
-go install github.com/golangtrainingapp/windyv1@latest
+go install github.com/golangtrainingapp/windy/cmd/windy@latest
 ```
