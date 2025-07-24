@@ -35,10 +35,6 @@ func TestBuildRequestReturnsRequestWithLatLongAndKey(t *testing.T) {
 
 }
 
-func convertRequestToBytes(req string) []byte {
-	return []byte(req)
-}
-
 func TestValidateInputParametersFromRequest(t *testing.T) {
 	t.Parallel()
 
