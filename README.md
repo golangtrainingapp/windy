@@ -1,6 +1,6 @@
-# windyv1
+# windy
 
-The windyv1 is a simple http client application to retrieve the real-time weather from windyapi.com website for a given
+The windy is a simple http client application to retrieve the real-time weather from windyapi.com website for a given
 airport code's latitude, longitude and apikey. The real-time response will be in the Json format.
 It is up to the end user as how they want to process the response. The data could be saved for
 additional processing or simply could be added in the database for other applications to process the data.
