@@ -100,16 +100,13 @@ type Windy_Realtime_Report struct {
 	Warning                 string    `json:"warning"`
 }
 
+const WINDY_API_ENDPOINT = "https://api.windy.com/api/point-forecast/v2"
+
 // The GetWeather function is responsible for retrieving the real-time weather response for a given
 // latitude and longitude from WindyAPI.com. The apiKey is also necessary as the validation is
 // performed by WindyAPI.com. An POST request is sent to WindyAPI.com to retrieve the real-time
 // weather results
 func GetWeather(latitude, longitude float64, apiKey string) (Windy_Realtime_Report, error) {
-	config, err := LoadConfig("windy/windy.yaml")
-	if err != nil {
-		return Windy_Realtime_Report{}, errors.New("unable to process the request, please contact the application support team")
-	}
-	endPoint := config.ServerInfo.Endpoint
 
 	if !math.IsNaN(latitude) && !math.IsInf(latitude, 0) && !isValidLatitude(latitude) {
 		return Windy_Realtime_Report{}, errors.New("latitude must be a numeric value (between -90 and 90)")
@@ -121,7 +118,7 @@ func GetWeather(latitude, longitude float64, apiKey string) (Windy_Realtime_Repo
 		return Windy_Realtime_Report{}, errors.New("api key is required")
 	}
 
-	req, _ := BuildRequest(latitude, longitude, apiKey, "POST", endPoint)
+	req, _ := BuildRequest(latitude, longitude, apiKey, "POST", WINDY_API_ENDPOINT)
 
 	req.Header.Set("content-type", "application/json")
 	resp, err := http.DefaultClient.Do(req)

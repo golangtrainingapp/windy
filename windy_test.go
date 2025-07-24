@@ -1,7 +1,6 @@
 package windy_test
 
 import (
-	"errors"
 	"fmt"
 	"github.com/golangtrainingapp/windy"
 	"github.com/stretchr/testify/assert"
@@ -13,52 +12,11 @@ import (
 
 const WINDYAPI_ENDPOINT = "https://api.windy.com/api/point-forecast/v2"
 
-func TestLoadConfig_ReturnsErrorWhenConfigFileIsMissing(t *testing.T) {
-	t.Parallel()
-	//Pass the invalid key pair in the Config file to simulate the error
-	_, err := windy.LoadConfig("test/windy.yaml")
-	assert.NotNil(t, err)
-
-}
-
-func TestLoadConfig_ReturnsErrorWhenContentIsInvalid(t *testing.T) {
-	t.Parallel()
-	_, err := os.Stat("testdata/invalid.yaml")
-	if err != nil {
-		t.Fatal(err)
-	}
-	_, err = windy.LoadConfig("testdata/invalid.yaml")
-	if err == nil {
-		t.Error("Wanted error but got nil")
-	}
-
-}
-
-func TestValidConfigFile(t *testing.T) {
-	t.Parallel()
-
-	//Pass the invalid key pair in the Config file to simulate the error
-	config, err := windy.LoadConfig("windy/windy.yaml")
-	if err != nil {
-		assert.Error(t, errors.New("Unable to load the configuration file. Please contact the application support team."), err)
-	}
-	assert.YAMLEq(t, config.ServerInfo.Endpoint, "https://api.windy.com/api/point-forecast/v2")
-
-}
-
-func ReturnApiKey() (string, error) {
-	config, err := windy.LoadConfig("windy/windy.yaml")
-	if err != nil {
-		return "", errors.New("Unable to load the configuration file. Please contact the application support team.")
-	}
-	return config.ServerInfo.ApiKey, nil
-}
-
 func TestBuildRequestReturnsRequestWithLatLongAndKey(t *testing.T) {
 	t.Parallel()
-	apiKey, err := ReturnApiKey()
-	if err != nil {
-		t.Fatal(err)
+	apiKey := ReturnApiKey()
+	if apiKey == "" {
+		t.Fatal("Api key not set")
 	}
 
 	request, err := windy.BuildRequest(53.1900, -112.2500, apiKey, "POST", WINDYAPI_ENDPOINT)
@@ -84,9 +42,9 @@ func convertRequestToBytes(req string) []byte {
 func TestValidateInputParametersFromRequest(t *testing.T) {
 	t.Parallel()
 
-	apikey, err := ReturnApiKey()
-	if err != nil {
-		t.Fatal(err)
+	apikey := ReturnApiKey()
+	if apikey == "" {
+		t.Fatal("Missing api key")
 	}
 
 	var requestTests = []struct {
@@ -116,13 +74,13 @@ func TestValidateInputParametersFromRequest(t *testing.T) {
 
 func TestSimulateInvalidWindyEndPoint(t *testing.T) {
 	t.Parallel()
-	apiKey, err := ReturnApiKey()
-	if err != nil {
-		t.Fatal(err)
+	apikey := ReturnApiKey()
+	if apikey == "" {
+		t.Fatal("Missing api key")
 	}
 	//Make a change in Config with invalid endpoint for example from v2 to v1
 	endPoint := "https://api.windy.com/api/point-forecast/v1"
-	req, _ := windy.BuildRequest(53.1900, -112.2500, apiKey, "POST", endPoint)
+	req, _ := windy.BuildRequest(53.1900, -112.2500, apikey, "POST", endPoint)
 	req.Header.Set("content-type", "application/json")
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -132,4 +90,13 @@ func TestSimulateInvalidWindyEndPoint(t *testing.T) {
 		t.Errorf("Expected status code %d, got %d", http.StatusNotFound, resp.StatusCode)
 	}
 
+}
+
+func ReturnApiKey() string {
+	var apiKey string
+	if os.Getenv("WINDY_API_KEY") == "" {
+		_ = os.Setenv("WINDY_API_KEY", "mxJW8fEadecqILVj7RWBdhUfJ38Ou0Bv")
+	}
+	apiKey = os.Getenv("WINDY_API_KEY")
+	return apiKey
 }
