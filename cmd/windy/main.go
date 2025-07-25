@@ -52,13 +52,10 @@ func WriteToFile(path string, data []byte) error {
 
 func PrintToConsole(response windy.Windy_Realtime_Report, latitude, longitude float64) {
 	// Use your own io.Writer output
-	c := color.New(color.FgCyan).Add(color.Underline)
-
-	fmt.Println()
+	c := color.New(color.FgCyan)
 	color.Cyan("Latitude: %v, Longitude: %v", latitude, longitude)
 	color.Blue("-------------------------------------------\n")
 	color.Cyan("A sample partial data is displayed to the console:\n")
-
 	_, _ = c.Print("Air Temperature: ", fmt.Sprintf("%.2f", response.TempSurface[0]), " C,")
 	_, _ = c.Print(" Dewpoint: ", fmt.Sprintf("%.2f", response.DewpointSurface[0]), " C,")
 	_, _ = c.Print(" Wind: ", fmt.Sprintf("%.2f", response.WindUSurface[0]), " C,")
@@ -83,13 +80,10 @@ func PrintToConsole(response windy.Windy_Realtime_Report, latitude, longitude fl
 	default:
 		precipitation = "No Precipitation"
 	}
-
 	_, _ = c.Print(" Precipitation: ", precipitation, " ,")
-
 	_, _ = c.Print(" Relative Humidity: ", fmt.Sprintf("%.2f", response.RhSurface[0]), " %,")
 	_, _ = c.Print(" Low Cloud: ", fmt.Sprintf("%.2f", response.LcloudsSurface[0]), " ,")
 	_, _ = c.Print(" High Cloud: ", fmt.Sprintf("%.2f", response.HcloudsSurface[0]), " ,")
 	_, _ = c.Print(" Medium Cloud: ", fmt.Sprintf("%.2f", response.McloudsSurface[0]), " ,")
 	_, _ = c.Print(" Overall snow for the preciding 3 hours: ", fmt.Sprintf("%.2f", response.Past3HprecipSurface[0]), " mm,")
-
 }
