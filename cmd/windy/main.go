@@ -54,16 +54,35 @@ func PrintToConsole(response windy.Windy_Realtime_Report, latitude, longitude fl
 	color.Cyan("Latitude: %v, Longitude: %v", latitude, longitude)
 	color.Blue("-------------------------------------------\n")
 	color.Cyan("A sample partial data is displayed to the console:\n")
-	color.Green("Surface Temperature:  %v", response.TempSurface[0])
-	color.Green("Surface Dewpoint: %v", response.DewpointSurface[0])
-	color.Green("Surface Wind: %v", response.WindUSurface[0])
-	color.Green("Surface Gust: %v", response.GustSurface[0])
-	color.Green("Surface Cape: %v", response.CapeSurface[0])
-	color.Green("Surface Pressure: %v", response.PressureSurface[0])
-	color.Green("Surface Ptype: %v", response.PtypeSurface[0])
-	color.Green("Surface Lcloud: %v", response.LcloudsSurface[0])
-	color.Green("Surface Hcloud %v", response.HcloudsSurface[0])
-	color.Green("Surface Mcloud %v", response.McloudsSurface[0])
-	color.Green("Surface Precipitation %v", response.Past3HprecipSurface[0])
+	color.Green("Air Temperature:  %v", fmt.Sprintf("%.2f", response.TempSurface[0]))
+	color.Green("Dewpoint: %v", fmt.Sprintf("%.2f", response.DewpointSurface[0]))
+	color.Green("Wind: %v", fmt.Sprintf("%.2f", response.WindUSurface[0]))
+	color.Green("Wind Gust: %v", fmt.Sprintf("%.2f", response.GustSurface[0]))
+	color.Green("Cape: %v", fmt.Sprintf("%.2f", response.CapeSurface[0]))
+	color.Green("Air Pressure: %v", fmt.Sprintf("%.2f", response.PressureSurface[0]))
+	iprecip := response.PtypeSurface[0]
+	var precipitation string
+	switch iprecip {
+	case 0:
+		precipitation = "No Precipitation"
+	case 1:
+		precipitation = "Rain"
+	case 3:
+		precipitation = "Freeezing Rain"
+	case 5:
+		precipitation = "Snow"
+	case 7:
+		precipitation = "Mixture of Rain and snow"
+	case 8:
+		precipitation = "Ice pellets"
+	default:
+		precipitation = "No precipitation"
+	}
+	color.Green("Precipitation: %v", precipitation)
+	color.Green("Relative humidity: %v", fmt.Sprintf("%.2f", response.RhSurface[0]))
+	color.Green("Low Cloud: %v", fmt.Sprintf("%.2f", response.LcloudsSurface[0]))
+	color.Green("High Cloud %v", fmt.Sprintf("%.2f", response.HcloudsSurface[0]))
+	color.Green("Medium Cloud %v", fmt.Sprintf("%.2f", response.McloudsSurface[0]))
+	color.Green("Overall snow for the preciding 3 hours %v", fmt.Sprintf("%.2f", response.Past3HprecipSurface[0]))
 
 }
