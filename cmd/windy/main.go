@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"text/tabwriter"
 	"time"
 )
 
@@ -32,8 +33,7 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	PrintToConsole(resp, latitude, longitude)
-	//fmt.Println(resp)
+	PrintToConsoleUsingTabWriter(resp, latitude, longitude)
 }
 
 func WriteToFile(path string, data []byte) error {
@@ -50,19 +50,34 @@ func WriteToFile(path string, data []byte) error {
 
 }
 
-func PrintToConsole(response windy.Windy_Realtime_Report, latitude, longitude float64) {
-	// Use your own io.Writer output
-	c := color.New(color.FgCyan)
+func PrintToConsoleUsingTabWriter(response windy.Windy_Realtime_Report, latitude, longitude float64) {
 	color.Cyan("Latitude: %v, Longitude: %v", latitude, longitude)
-	color.Blue("-------------------------------------------\n")
-	color.Cyan("A sample partial data is displayed to the console:\n")
-	_, _ = c.Print("Air Temperature: ", fmt.Sprintf("%.2f", response.TempSurface[0]), " C,")
-	_, _ = c.Print(" Dewpoint: ", fmt.Sprintf("%.2f", response.DewpointSurface[0]), " C,")
-	_, _ = c.Print(" Wind: ", fmt.Sprintf("%.2f", response.WindUSurface[0]), " C,")
-	_, _ = c.Print(" Wind Gust: ", fmt.Sprintf("%.2f", response.GustSurface[0]), " mph,")
-	_, _ = c.Print(" Cape: ", fmt.Sprintf("%.2f", response.CapeSurface[0]), " J/Kg,")
-	_, _ = c.Print(" Air Pressure: ", fmt.Sprintf("%.2f", response.PressureSurface[0]), " mb,")
-	iprecip := response.PtypeSurface[0]
+	w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', tabwriter.Debug)
+
+	_, _ = fmt.Fprintln(w, "Timestamp\t Air Temp (C)\tDewpoint (C)\tWind (C)\tWind Gust (mph)\tCape (J/kg)\tAir Pressure (mb)\tPrecipitation\tHumidity (%)\tLow CLoud\tHigh Cloud\tMedium Cloud\tOverall Snow\t")
+	count := 0
+	for i := 0; i < len(response.Ts); i++ {
+		t := time.UnixMilli(response.Ts[i])
+		_, _ = fmt.Fprintln(w, t, "\t",
+			fmt.Sprintf("%.2f", response.TempSurface[i]-273.15), "\t",
+			fmt.Sprintf("%.2f", response.DewpointSurface[i]-273.15), "\t",
+			fmt.Sprintf("%.2f", response.WindUSurface[i]), "\t",
+			fmt.Sprintf("%.2f", response.GustSurface[i]), "\t",
+			fmt.Sprintf("%.2f", response.CapeSurface[i]), "\t",
+			fmt.Sprintf("%.2f", response.PressureSurface[i]/100), "\t",
+			PrecipitationType(response.PtypeSurface[i]), "\t",
+			fmt.Sprintf("%.2f", response.RhSurface[i]), "\t",
+			fmt.Sprintf("%.2f", response.HcloudsSurface[i]), "\t",
+			fmt.Sprintf("%.2f", response.McloudsSurface[i]), "\t",
+			fmt.Sprintf("%.2f", response.LcloudsSurface[i]), "\t",
+			fmt.Sprintf("%.2f", response.Past3HprecipSurface[i]))
+		count++
+	}
+	fmt.Println("Total Weather Records: ", count)
+	_ = w.Flush()
+}
+
+func PrecipitationType(iprecip int) string {
 	var precipitation string
 	switch iprecip {
 	case 0:
@@ -80,10 +95,5 @@ func PrintToConsole(response windy.Windy_Realtime_Report, latitude, longitude fl
 	default:
 		precipitation = "No Precipitation"
 	}
-	_, _ = c.Print(" Precipitation: ", precipitation, " ,")
-	_, _ = c.Print(" Relative Humidity: ", fmt.Sprintf("%.2f", response.RhSurface[0]), " %,")
-	_, _ = c.Print(" Low Cloud: ", fmt.Sprintf("%.2f", response.LcloudsSurface[0]), " ,")
-	_, _ = c.Print(" High Cloud: ", fmt.Sprintf("%.2f", response.HcloudsSurface[0]), " ,")
-	_, _ = c.Print(" Medium Cloud: ", fmt.Sprintf("%.2f", response.McloudsSurface[0]), " ,")
-	_, _ = c.Print(" Overall snow for the preciding 3 hours: ", fmt.Sprintf("%.2f", response.Past3HprecipSurface[0]), " mm,")
+	return precipitation
 }
